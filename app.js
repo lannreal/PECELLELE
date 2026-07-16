@@ -33,10 +33,8 @@ const CHROME_ARGS = [
   '--no-sandbox',
   '--disable-setuid-sandbox',
   '--disable-dev-shm-usage',
-  '--use-gl=swiftshader',
   '--disable-blink-features=AutomationControlled',
-  '--window-size=1920,1080',
-  `--proxy-server=${process.env.PROXY_URL || 'http://dc.oxylabs.io:8000'}`,
+  '--window-size=1920,1080'
   '--ignore-certificate-errors',
   '--ignore-certificate-errors-spki-list'
 ];
@@ -101,12 +99,10 @@ async function isChallenging(page) {
 
 async function isCleanDashboard(page) {
   try {
-    const title = (await page.title().catch(() => '')).toLowerCase();
-    const url = page.url().toLowerCase();
-    if (title.includes('just a moment') || title.includes('checking') || title.includes('attention') || title.includes('cloudflare') || url.includes('challenge')) {
-      return false;
-    }
-    // As long as URL is correct and no CF title, assume it's clean
+    const title = (await page.title()).toLowerCase();
+    if (title.includes('just a moment')) return false;
+    
+    const url = page.url();
     if (url.includes('/dashboard/generator')) return true;
     return title.length > 2 && (title.includes('generator') || title.includes('dashboard') || title.includes('am premium'));
   } catch {
