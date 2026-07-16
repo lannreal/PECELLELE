@@ -215,15 +215,25 @@ async function runSolver() {
   let browser = null;
   let newProxyUrl = null;
   try {
-    const execPath = getChromeExecutablePath();
-    log.info(`Menggunakan Chrome executable: ${execPath}`);
-    
+    let finalExecPath = undefined;
+    if (process.platform === 'linux') {
+        const fs = require('fs');
+        if (fs.existsSync('/root/chrome-custom/google-chrome')) {
+            finalExecPath = '/root/chrome-custom/google-chrome';
+        } else {
+            finalExecPath = getChromeExecutablePath();
+        }
+    } else {
+        finalExecPath = getChromeExecutablePath();
+    }
+    log.info(`Menggunakan Chrome executable: ${finalExecPath}`);
+
     // Gunakan IP VPS langsung (Tanpa Proxy) karena rebrowser-puppeteer sangat kuat
     const dynamicArgs = CHROME_ARGS.filter(arg => !arg.startsWith('--proxy-server'));
 
     browser = await puppeteer.launch({
       headless: false,
-      executablePath: execPath,
+      executablePath: finalExecPath,
       args: dynamicArgs,
       ignoreHTTPSErrors: true,
       defaultViewport: null,
