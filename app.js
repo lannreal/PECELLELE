@@ -255,7 +255,8 @@ let currentSession = null;
     }
 
     // 📌 Tentukan URL target (digunakan untuk auto-login atau refresh CF)
-    const TARGET_URL = 'https://amprem.irfanjawa.com/dashboard/generator';
+    let TARGET_URL = 'https://amprem.irfanjawa.com/dashboard/generator';
+    if (action === "send") TARGET_URL = 'https://amprem.irfanjawa.com/auth';
     // Removed FINGERPRINT_PRESETS, pickFingerprint, and hardenFingerprint. Relying on StealthPlugin.
     
     log.info(`Membuka Target Server Utama ...`);
