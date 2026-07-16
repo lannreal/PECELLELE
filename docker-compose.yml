@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  bot:
+    build: .
+    container_name: pecellele_bot
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - MASTER_EMAIL=${MASTER_EMAIL}
+      - MASTER_PASSWORD=${MASTER_PASSWORD}
+      - PROXY_URL=${PROXY_URL}
+      - TARGET_URL=${TARGET_URL}
+    env_file:
+      - .env

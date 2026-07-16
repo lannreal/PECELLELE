@@ -1,9 +1,9 @@
+require('dotenv').config();
 
 if (process.argv[2] === '--worker') {
   process.argv.splice(2, 1);
   (async () => {
     
-
 const fs = require('fs');
 const path = require('path');
 const { addExtra } = require('puppeteer-extra');
@@ -35,7 +35,7 @@ const CHROME_ARGS = [
   '--disable-dev-shm-usage',
   '--disable-blink-features=AutomationControlled',
   '--window-size=1920,1080',
-  '--proxy-server=http://dc.oxylabs.io:8000',
+  `--proxy-server=${process.env.PROXY_URL || 'http://dc.oxylabs.io:8000'}`,
   '--ignore-certificate-errors',
   '--ignore-certificate-errors-spki-list'
 ];
@@ -190,8 +190,8 @@ async function ensureMasterLogin(page) {
   
   try {
       await page.waitForSelector('input[type="email"]', { timeout: 10000 });
-      await page.type('input[type="email"]', 'serbamurahstore123@gmail.com');
-      await page.type('input[type="password"]', 'fakePwPC123@');
+      await page.type('input[type="email"]', process.env.MASTER_EMAIL || 'serbamurahstore123@gmail.com');
+      await page.type('input[type="password"]', process.env.MASTER_PASSWORD || 'fakePwPC123@');
       await page.click('button[type="submit"]');
       
       await sleep(2000);
@@ -766,6 +766,7 @@ const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
 const { spawn, execSync } = require('child_process');
+require('dotenv').config();
 
 const PORT = process.env.PORT || 3000;
 const CONFIG_PATH = path.join(__dirname, 'config_prem.json');

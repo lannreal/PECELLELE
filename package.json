@@ -5,6 +5,7 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js --api",
+    "start:prod": "xvfb-run -a pm2 start app.js --name 'pecellele-bot' -- --api",
     "dev": "node app.js --api",
     "cli": "node app.js"
   },
@@ -20,6 +21,8 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
+    "dotenv": "^17.4.2",
+    "https-proxy-agent": "^9.1.0",
     "proxy-chain": "^2.3.0",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",
