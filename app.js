@@ -1112,13 +1112,20 @@ function startAPIServer() {
                 jobQueue.push({ jobId, action, email, magicLink });
                 jobStore.set(jobId, { status: 'queued', position, email, action, started_at: new Date().toISOString() });
 
+                let responseMessage = '';
+                if (action === 'send') {
+                    responseMessage = `✅ Job diterima! Pengiriman Magic Link sedang berada di Antrean ke-${position}. Mohon tunggu sebentar.`;
+                } else {
+                    responseMessage = `✅ Job diterima! Saat ini permintaan Anda berada di Antrean ke-${position}. Silakan pantau kotak masuk (Inbox) atau folder Spam di email Anda. Kami akan otomatis mengirimkan notifikasi setelah proses akun selesai dieksekusi.`;
+                }
+
                 sendJSON(res, 202, {
                     success: true,
                     status: 'queued',
                     job_id: jobId,
                     action,
                     email,
-                    message: `✅ Job diterima! Saat ini permintaan Anda berada di Antrean ke-${position}. Silakan pantau kotak masuk (Inbox) atau folder Spam di email Anda. Kami akan otomatis mengirimkan notifikasi setelah proses akun selesai dieksekusi.`,
+                    message: responseMessage,
                     check_result_url: `/api/result/${jobId}`
                 });
 
