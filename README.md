@@ -1,60 +1,70 @@
-# 🚀 AM Generator Premium — Local CLI & Server Edition
+# 🚀 MotionHub Premium API — Automation & Queue System
 
-AM Generator Premium adalah skrip otomasi tangguh berbasis **Node.js** yang dirancang untuk membypass pengamanan Cloudflare Turnstile, memverifikasi Magic Link secara otomatis, mengeksekusi bypass 5 langkah iklan otomatis, serta mengklaim VIP/Premium secara langsung.
+Sistem Otomasi **MotionHub** berbasis **Node.js** yang dirancang khusus untuk mem-bypass pengamanan Cloudflare Turnstile, memverifikasi Magic Link secara otomatis (Firebase Auth), mengeksekusi bypass 5 langkah iklan otomatis, serta mengklaim VIP/Premium secara langsung dengan sistem **Smart Queue (Antrean Pintar)**.
 
-Versi *Local Only* ini didesain khusus agar kamu bisa langsung menjalankan sistem di laptop/komputer pribadi secara instan tanpa perlu pengaturan server (seperti Docker atau Railway).
+Versi terbaru ini telah didesain untuk beroperasi sebagai Web/API Server berskala produksi dengan manajemen background worker (Child Process) untuk menjaga kestabilan memori.
 
 ---
 
-## 💻 Cara Menjalankan di Lokal (PC / Laptop)
+## 🌟 Fitur Unggulan Terbaru
+- **MotionHub Rebranding**: Notifikasi hasil sukses/gagal dikirim via Email dengan UI desain ala Apple/Vercel yang sangat premium dan elegan.
+- **Smart Queue System (Antrean Pintar)**: Mencegah *bottleneck* dan pemblokiran Cloudflare dengan menerapkan sistem antrean background.
+  - `/api/send`: Jeda cooldown antrean 30 detik.
+  - `/api/verify` & `/api/claim`: Jeda cooldown antrean 60-90 detik.
+- **Auto-Polling System**: API akan memberikan `job_id` dengan status HTTP 202 (Accepted) untuk di-cek hasilnya secara berkala di `/api/result/:jobId`.
+- **Auto-Keep-Alive**: Menjaga sesi *cookie* agar tetap valid dengan jadwal acak (Random Human-Like Interval).
+- **Process Isolation**: Pekerja (Worker) dijalankan secara terpisah menggunakan Puppeteer untuk manajemen memory yang optimal.
 
-1. Pastikan kamu sudah menginstal **Node.js** di komputermu (versi 18+ direkomendasikan) dan **Google Chrome** (untuk otomasi browser).
-2. Buka folder ini di Terminal atau Command Prompt.
-3. Jalankan perintah instalasi dependensi (hanya perlu dilakukan sekali):
+---
+
+## 💻 Cara Menjalankan Server
+
+1. Pastikan **Node.js** (versi 18+) dan **Google Chrome** terpasang.
+2. Clone repository ini dan buka via Terminal.
+3. Install dependensi:
    ```bash
    npm install
    ```
-4. Jalankan aplikasi menggunakan perintah berikut:
+4. Jalankan aplikasi (Disarankan menggunakan PM2 untuk Production):
+   ```bash
+   pm2 start app.js --name motionhub-bot -- --api
+   ```
+   Atau jika hanya ingin di lokal (Interactive Mode):
    ```bash
    node app.js
    ```
-5. Sebuah menu interaktif akan muncul. Silakan ikuti instruksi di layar.
 
 ---
 
-## 🕹️ Mode CLI Terminal (Bypass Menu Interaktif)
+## 🌐 Dokumentasi Endpoint API
 
-Jika kamu ingin mengeksekusi bot secara langsung via Terminal tanpa harus melewati menu pilihan awal, gunakan perintah-perintah berikut:
+Semua endpoint bersifat Asynchronous. Payload dikirim ke antrean, dan klien harus melakukan *polling* ke URL cek status (`check_result_url`) yang diberikan di response awal.
 
-```bash
-# Mengeksekusi verifikasi Magic Link & Klaim VIP (Tahap Utama)
-node app.js verify_and_claim "emailkamu@gmail.com" "https://link-magic-firebase-kamu..."
+### 1. `POST /api/send`
+Memicu pengiriman Magic Link verifikasi (Firebase) ke email.
+- **Payload**: `{"email": "user@gmail.com"}`
+- **Response**: `HTTP 202` (Job Diterima, Antrean)
 
-# Hanya mengeksekusi Klaim VIP (Untuk akun yang sudah terverifikasi sebelumnya)
-node app.js claim_only
+### 2. `POST /api/verify`
+Memverifikasi Magic Link dari email, melakukan *bypass* iklan 5 langkah, dan mengaktifkan VIP. Email laporan (UI Premium) akan otomatis terkirim setelah sukses.
+- **Payload**: `{"email": "user@gmail.com", "magicLink": "https://..."}`
+- **Response**: `HTTP 202` (Job Diterima, Antrean)
 
-# Mengirim ulang Magic Link dari Server ke Email
-node app.js send "emailkamu@gmail.com"
+### 3. `POST /api/claim`
+Langsung mem-bypass iklan 5 langkah dan klaim VIP menggunakan sesi (*cookie*) aktif saat ini (berguna jika sebelumnya gagal di tahap iklan).
+- **Payload**: `{}`
+- **Response**: `HTTP 202` (Job Diterima, Antrean)
 
-# Menjalankan sebagai REST API Server di background lokal (Port 3000 default)
-node app.js --api
-```
+### 4. `GET /api/result/:jobId`
+Mengecek status eksekusi dari antrean.
+- **Response**: Menampilkan objek status (`queued`, `done`, atau `failed`). Jika `done`/`failed`, akan berisi hasil/error operasi.
 
----
-
-## 🌐 Daftar Endpoint (Jika Dijalankan Sebagai API Server Lokal)
-
-Jika kamu memilih opsi `[3]` di menu atau menggunakan perintah `node app.js --api`, sistem akan berubah menjadi server REST API yang siap ditembak dari aplikasi apa pun (Postman, Python, CURL, dll) di URL `http://localhost:3000`.
-
-| Method | Endpoint | Fungsi | Contoh Payload JSON |
-| :---: | :--- | :--- | :--- |
-| **GET** | `/` | Cek status & Dokumentasi JSON | `-` |
-| **GET** | `/api/status` | Mengecek uptime server dan status bot | `-` |
-| **POST** | `/api/keepalive` | Melakukan refresh session & Bypass CF Manual | `-` |
-| **POST** | `/api/send` | Mengirim Magic Link ke email yang di-input | `{"email": "lanncrop@gmail.com"}` |
-| **POST** | `/api/verify` | **(UTAMA)** Verifikasi Link, Bypass Iklan, Klaim VIP | `{"email": "lanncrop@gmail.com", "magicLink": "https://..."}` |
-| **POST** | `/api/claim` | Bypass Iklan & Klaim VIP untuk session aktif saat ini | `{}` |
+### Endpoint Utilitas Lainnya
+- `GET /` : Informasi Status Health API dan Dokumentasi.
+- `GET /api/status` : Mengecek *uptime* server, jadwal keep-alive, dan status *cookie* Cloudflare/Sesi.
+- `POST /api/keepalive` : Memaksa bot melakukan penyegaran (Refresh) untuk memperpanjang sesi Cloudflare manual.
+- `POST /api/config` : Menimpa config (`config_prem.json`) secara manual via API.
 
 ---
 
-*Script Automation Crafted & Maintained by **lanncodex** | Assisted by **Antigravity AI***
+*Engineered & Maintained by **lanncodex** | Supported by **Antigravity AI***
