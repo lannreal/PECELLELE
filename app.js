@@ -315,7 +315,7 @@ let currentSession = null;
                 if (page._reloads < 3) {
                     log.info(`🎯 cf_clearance aktif tapi masih tertahan! Membuka ulang dashboard (Reload #${page._reloads + 1})...`);
                     page._reloads++;
-                    await page.goto('https://amprem.irfanjawa.com/dashboard/generator', { waitUntil: 'domcontentloaded', timeout: 25000 }).catch(() => {});
+                    await page.goto(TARGET_URL, { waitUntil: 'domcontentloaded', timeout: 25000 }).catch(() => {});
                     await sleep(1500);
                     continue;
                 } else {
