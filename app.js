@@ -405,7 +405,7 @@ let currentSession = null;
                 } else {
                     log.warn(`⚠️ CF Turnstile tertahan di frontend, tapi cf_clearance valid! Memaksa bypass dengan lanjut ke tahap eksekusi API...`);
                     // Langsung bypass loop frontend, biarkan API layer yang jalan
-                    break;
+                    // Kita tidak menggunakan 'break' di sini agar kode mengalir (fallthrough) ke eksekusi API di bawahnya.
                 }
             } else {
                 await sleep(1500);
