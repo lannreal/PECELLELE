@@ -1124,21 +1124,28 @@ function startAPIServer() {
                 
                 if (!email) return sendJSON(res, 400, { success: false, error: "Parameter 'email' wajib diset." });
 
-                let action = '';
+                let action = magicLink ? 'verify_and_claim' : 'claim_only';
                 if (pathname === '/api/send') action = 'send';
-                else action = magicLink ? 'verify_and_claim' : 'claim_only';
 
+                const position = isProcessingQueue ? jobQueue.length + 2 : 1;
                 const jobId = `job_${Date.now()}_${Math.random().toString(36).slice(2,8)}`;
-                const position = isProcessingQueue ? jobQueue.length + 1 : 1;
                 
                 jobQueue.push({ jobId, action, email, magicLink });
                 jobStore.set(jobId, { status: 'queued', position, email, action, started_at: new Date().toISOString() });
 
                 let responseMessage = '';
                 if (action === 'send') {
-                    responseMessage = `✅ Job diterima! Pengiriman Magic Link sedang berada di Antrean ke-${position}. Mohon tunggu sebentar.`;
+                    if (position === 1) {
+                        responseMessage = `✅ Job diterima! Link verifikasi sedang dikirim. Silakan cek kotak masuk (Inbox/Spam) Gmail Anda sesaat lagi.`;
+                    } else {
+                        responseMessage = `✅ Job diterima! Pengiriman Magic Link sedang berada di Antrean ke-${position}. Mohon tunggu sebentar.`;
+                    }
                 } else {
-                    responseMessage = `✅ Job diterima! Saat ini permintaan Anda berada di Antrean ke-${position}. Silakan pantau kotak masuk (Inbox) atau folder Spam di email Anda. Kami akan otomatis mengirimkan notifikasi setelah proses akun selesai dieksekusi.`;
+                    if (position === 1) {
+                        responseMessage = `✅ Job diterima! Proses VIP sedang dieksekusi. Silakan pantau kotak masuk (Inbox) atau folder Spam di email Anda. Kami akan mengirimkan notifikasi setelah selesai.`;
+                    } else {
+                        responseMessage = `✅ Job diterima! Saat ini permintaan Anda berada di Antrean ke-${position}. Silakan pantau email Anda untuk hasil proses VIP.`;
+                    }
                 }
 
                 sendJSON(res, 202, {
