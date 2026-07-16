@@ -33,8 +33,7 @@ const CHROME_ARGS = [
   '--no-sandbox',
   '--disable-setuid-sandbox',
   '--disable-dev-shm-usage',
-  '--disable-gpu',
-  '--disable-software-rasterizer',
+  '--use-gl=swiftshader',
   '--disable-blink-features=AutomationControlled',
   '--window-size=1920,1080',
   `--proxy-server=${process.env.PROXY_URL || 'http://dc.oxylabs.io:8000'}`,
@@ -270,16 +269,6 @@ let currentSession = null;
 
     const CHROME_VERSIONS = [121, 122, 123, 124];
     const FINGERPRINT_PRESETS = [
-      {
-        label             : 'win10-intel',
-        osToken           : 'Windows NT 10.0; Win64; x64',
-        navigatorPlatform : 'Win32',
-        secChUaPlatform   : 'Windows',
-        webglVendor       : 'Google Inc. (Intel)',
-        webglRenderer     : 'ANGLE (Intel, Intel(R) UHD Graphics 620 Direct3D11 vs_5_0 ps_5_0, D3D11)',
-        hwConcurrencyPool : [4, 8],
-        deviceMemoryPool  : [8, 16],
-      },
       {
         label             : 'linux-mesa',
         osToken           : 'X11; Linux x86_64',
