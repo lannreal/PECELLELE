@@ -712,50 +712,69 @@ async function sendNotificationEmail(targetEmail, isSuccess, codeOrder, failMess
         const subject = isSuccess ? '🚀 [MotionHub] Berhasil Upgrade Akun Premium' : '⚠️ [MotionHub] Gagal Upgrade Akun';
         const year = new Date().getFullYear();
         let htmlBody = `
-<div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #121212; padding: 40px 20px; color: #e0e0e0;">
-    <div style="max-width: 600px; margin: 0 auto; background-color: #1e1e1e; border: 1px solid #333; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.5);">
+<div style="background-color: #09090b; padding: 50px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #f4f4f5; line-height: 1.6;">
+    <div style="max-width: 560px; margin: 0 auto; background-color: #18181b; border: 1px solid #27272a; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.8);">
         
-        <div style="background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 100%); padding: 30px; text-align: center; border-bottom: 2px solid #415a77;">
-            <h1 style="color: #e0eaf5; margin: 0; font-size: 28px; letter-spacing: 1px;">MotionHub</h1>
-            <p style="color: #778da9; margin: 5px 0 0 0; font-size: 14px;">Premium Account System</p>
-        </div>
-        
-        <div style="padding: 30px;">
-            <p style="font-size: 16px; line-height: 1.6; color: #cccccc;">Hello,</p>
-            <p style="font-size: 16px; line-height: 1.6; color: #cccccc;">Sistem kami telah selesai memproses permintaan upgrade akun Anda untuk <strong>${targetEmail}</strong>.</p>
-            
-            <div style="background-color: #121212; border-left: 4px solid ${isSuccess ? '#4ade80' : '#f87171'}; padding: 20px; margin: 25px 0; border-radius: 4px;">
-                <h3 style="margin-top: 0; color: #ffffff; font-size: 18px; margin-bottom: 15px;">Detail Transaksi</h3>
-                <table style="width: 100%; border-collapse: collapse;">
-                    <tr>
-                        <td style="padding: 8px 0; color: #888888; width: 40%;">Status</td>
-                        <td style="padding: 8px 0; color: ${isSuccess ? '#4ade80' : '#f87171'}; font-weight: bold; text-align: right;">${isSuccess ? 'SUKSES ✅' : 'GAGAL ❌'}</td>
-                    </tr>
-                    ${isSuccess 
-                        ? `<tr>
-                               <td style="padding: 8px 0; color: #888888;">Order ID</td>
-                               <td style="padding: 8px 0; text-align: right;">
-                                   <span style="background-color: #1b263b; color: #60a5fa; padding: 4px 10px; border-radius: 4px; font-family: monospace; font-size: 15px; border: 1px solid #3b82f6;">${codeOrder || 'VIP-ACTIVE'}</span>
-                               </td>
-                           </tr>`
-                        : `<tr>
-                               <td style="padding: 8px 0; color: #888888;">Reason</td>
-                               <td style="padding: 8px 0; color: #fca5a5; text-align: right; font-size: 14px;">${failMessage || 'System Error'}</td>
-                           </tr>`}
-                </table>
-            </div>
-            
-            <p style="font-size: 15px; line-height: 1.6; color: #cccccc;">
-                ${isSuccess 
-                    ? 'Selamat! Akun Anda kini telah menikmati fitur premium dari MotionHub. Silakan login kembali ke dalam aplikasi untuk melihat perubahannya.' 
-                    : 'Mohon maaf, kami tidak dapat memproses upgrade akun Anda saat ini. Silakan coba kembali dalam beberapa saat, atau hubungi layanan bantuan kami.'}
+        <!-- Header -->
+        <div style="padding: 40px 40px 20px 40px; text-align: center;">
+            <h1 style="margin: 0; font-size: 26px; font-weight: 800; letter-spacing: 2px; color: #ffffff;">
+                MOTION<span style="color: #3b82f6;">HUB</span>
+            </h1>
+            <p style="margin: 8px 0 0 0; font-size: 13px; font-weight: 500; color: #a1a1aa; text-transform: uppercase; letter-spacing: 1.5px;">
+                Premium Workspace
             </p>
         </div>
         
-        <div style="background-color: #181818; padding: 20px; text-align: center; border-top: 1px solid #333;">
-            <p style="color: #666666; font-size: 12px; margin: 0;">Pesan ini dihasilkan secara otomatis oleh sistem MotionHub.</p>
-            <p style="color: #555555; font-size: 12px; margin: 5px 0 0 0;">&copy; ${year} MotionHub. All rights reserved.</p>
+        <!-- Divider -->
+        <div style="height: 1px; background: linear-gradient(90deg, #18181b 0%, #3f3f46 50%, #18181b 100%); margin: 0 40px;"></div>
+        
+        <!-- Content -->
+        <div style="padding: 35px 40px 45px 40px;">
+            <p style="font-size: 16px; color: #e4e4e7; margin-bottom: 24px;">Hi there,</p>
+            
+            <p style="font-size: 15px; color: #a1a1aa; margin-bottom: 35px;">
+                Permintaan upgrade akun Anda untuk <strong style="color: #ffffff;">${targetEmail}</strong> telah selesai diproses oleh sistem kami. Berikut rinciannya:
+            </p>
+            
+            <!-- Details Box -->
+            <div style="background-color: #0f0f11; border: 1px solid #27272a; border-radius: 8px; padding: 25px; margin-bottom: 35px;">
+                
+                <div style="margin-bottom: 20px;">
+                    <span style="font-size: 12px; color: #71717a; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 6px;">Status Transaksi</span>
+                    <span style="font-size: 16px; font-weight: 600; color: ${isSuccess ? '#34d399' : '#f87171'};">${isSuccess ? 'Verified & Active ✓' : 'Upgrade Failed ✕'}</span>
+                </div>
+                
+                ${isSuccess 
+                    ? `<div>
+                           <span style="font-size: 12px; color: #71717a; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 10px;">Order Reference</span>
+                           <div style="display: inline-block; background-color: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); padding: 10px 18px; border-radius: 6px; font-family: 'Courier New', Courier, monospace; font-size: 16px; font-weight: 700; color: #60a5fa; letter-spacing: 1.5px;">
+                               ${codeOrder || 'VIP-ACTIVE'}
+                           </div>
+                       </div>`
+                    : `<div>
+                           <span style="font-size: 12px; color: #71717a; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 6px;">Error Details</span>
+                           <span style="font-size: 14px; color: #fca5a5;">${failMessage || 'System Encountered an Error'}</span>
+                       </div>`
+                }
+            </div>
+            
+            <p style="font-size: 15px; color: #a1a1aa; margin: 0; line-height: 1.7;">
+                ${isSuccess 
+                    ? 'Selamat! Akun Anda kini telah terhubung ke jaringan Premium kami. Silakan tutup dan buka kembali aplikasi (Restart App) untuk memuat fitur eksklusif MotionHub.' 
+                    : 'Mohon maaf, sistem kami tidak dapat memproses permintaan ini. Silakan coba kembali dalam beberapa saat, atau hubungi tim bantuan.'}
+            </p>
         </div>
+        
+        <!-- Footer -->
+        <div style="background-color: #09090b; padding: 30px 40px; text-align: center; border-top: 1px solid #27272a;">
+            <p style="margin: 0; font-size: 12px; color: #52525b;">
+                Pesan ini dihasilkan secara otomatis oleh sistem keamanan MotionHub.<br>Mohon untuk tidak membalas email ini.
+            </p>
+            <p style="margin: 12px 0 0 0; font-size: 12px; color: #3f3f46;">
+                &copy; ${year} MotionHub Inc. All rights reserved.
+            </p>
+        </div>
+        
     </div>
 </div>`;
 
@@ -989,8 +1008,9 @@ async function startQueueProcessor() {
         }
         
         if (jobQueue.length > 0) {
-            console.log(`${C.cyan}[QUEUE] Menunggu 60 detik (Cooldown) sebelum mengeksekusi antrean selanjutnya...${C.reset}`);
-            await new Promise(r => setTimeout(r, 60000));
+            let cooldownTime = action === 'send' ? 30000 : 60000;
+            console.log(`${C.cyan}[QUEUE] Menunggu ${cooldownTime/1000} detik (Cooldown) sebelum mengeksekusi antrean selanjutnya...${C.reset}`);
+            await new Promise(r => setTimeout(r, cooldownTime));
         }
     }
     
