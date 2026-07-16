@@ -235,9 +235,10 @@ async function runSolver() {
     const pages = await browser.pages();
     const page = pages.length > 0 ? pages[0] : await browser.newPage();
 
-    // Autentikasi Proxy Murni Puppeteer (Tanpa Proxy Chain)
+    const sessionId = Math.random().toString(36).substring(2, 10);
+    // Autentikasi Proxy Murni Puppeteer (Tanpa Proxy Chain) + Sticky Session + Premium
     await page.authenticate({
-        username: 'scraperapi',
+        username: `scraperapi.session_number=${sessionId}.premium=true`,
         password: scraperApiKey
     });
 
