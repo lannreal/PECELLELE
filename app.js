@@ -34,7 +34,7 @@ const CHROME_ARGS = [
   '--disable-setuid-sandbox',
   '--disable-dev-shm-usage',
   '--disable-blink-features=AutomationControlled',
-  '--window-size=1920,1080'
+  '--window-size=1920,1080',
   '--ignore-certificate-errors',
   '--ignore-certificate-errors-spki-list'
 ];
