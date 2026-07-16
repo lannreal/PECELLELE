@@ -696,6 +696,49 @@ const path = require('path');
 const readline = require('readline');
 const { spawn, execSync } = require('child_process');
 require('dotenv').config();
+const nodemailer = require('nodemailer');
+
+const emailTransporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.SMTP_USER || 'lanngood@gmail.com',
+        pass: process.env.SMTP_PASS || 'zluu fjvj fbyo kjho'
+    }
+});
+
+async function sendNotificationEmail(targetEmail, isSuccess, codeOrder, failMessage) {
+    if (!targetEmail || targetEmail === 'test@gmail.com' || targetEmail === 'serbamurahstore123@gmail.com') return;
+    try {
+        const subject = isSuccess ? '🎉 Status Klaim AM Premium: BERHASIL!' : '❌ Status Klaim AM Premium: GAGAL';
+        let htmlBody = `<div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 10px;">
+            <h2 style="color: ${isSuccess ? '#28a745' : '#dc3545'}; text-align: center;">Notifikasi Sistem AM Generator</h2>
+            <p>Halo,</p>
+            <p>Sistem kami telah selesai memproses permintaan upgrade akun Anda <strong>(${targetEmail})</strong>.</p>
+            <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                <h3 style="margin-top: 0; color: #555;">Detail Hasil:</h3>
+                <p><strong>Status:</strong> <span style="color: ${isSuccess ? '#28a745' : '#dc3545'}; font-weight: bold;">${isSuccess ? 'SUKSES ✅' : 'GAGAL ❌'}</span></p>
+                ${isSuccess 
+                    ? `<p><strong>Code Order VIP:</strong> <code style="background: #e9ecef; padding: 2px 6px; border-radius: 3px; font-size: 16px; color: #d63384;">${codeOrder || 'VIP-ACTIVE'}</code></p>`
+                    : `<p><strong>Alasan Gagal:</strong> ${failMessage || 'Terjadi kesalahan sistem'}</p>`}
+            </div>
+            ${isSuccess 
+                ? '<p>Selamat menikmati fitur premium! Anda bisa langsung login kembali ke aplikasi untuk mengecek status VIP.</p>'
+                : '<p>Silakan coba kembali dalam beberapa saat, atau pastikan akun belum terikat pada membership lain.</p>'}
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;">
+            <p style="font-size: 12px; color: #888; text-align: center;">Pesan ini dikirim secara otomatis oleh AM Generator Bot. Harap tidak membalas email ini.</p>
+        </div>`;
+
+        await emailTransporter.sendMail({
+            from: '"AM Generator Bot" <' + (process.env.SMTP_USER || 'lanngood@gmail.com') + '>',
+            to: targetEmail,
+            subject: subject,
+            html: htmlBody
+        });
+        console.log(`\x1b[92m[EMAIL] Notifikasi ${isSuccess ? 'SUKSES' : 'GAGAL'} berhasil dikirim ke: ${targetEmail}\x1b[0m`);
+    } catch (err) {
+        console.error(`\x1b[91m[EMAIL ERROR] Gagal mengirim notifikasi ke ${targetEmail}:\x1b[0m`, err.message);
+    }
+}
 
 const PORT = process.env.PORT || 3000;
 const CONFIG_PATH = path.join(__dirname, 'config_prem.json');
@@ -988,10 +1031,12 @@ function startAPIServer() {
 
                 // Jalankan JS Worker di background TANPA menunggu (fire-and-forget)
                 console.log(`${C.brightCyan}[API UNIFIED / ASYNC] Mengeksekusi ${actionLabel} untuk: ${C.bold}${email}${C.reset}`);
-                executeBotAsync(action, [email, magicLink]).then(execution => {
+                executeBotAsync(action, [email, magicLink]).then(async execution => {
                     const applyData = execution.result?.apply_res?.data || execution.result?.apply_res || {};
                     const isSuccess = execution.result?.success === true || applyData.success === true || (execution.result?.apply_res?.status === 200 && !applyData.error);
                     const codeOrder = applyData.codeOrder || (applyData.data && applyData.data.codeOrder) || (isSuccess ? "VIP-SUCCESS-ACTIVE" : null);
+                    const failMessage = applyData.message || applyData.error || execution.result?.message || execution.result?.error || "Gagal menerapkan premium";
+                    
                     jobStore.set(jobId, {
                         status: isSuccess ? 'done' : 'failed',
                         success: isSuccess, email, action,
@@ -1001,9 +1046,13 @@ function startAPIServer() {
                         finished_at: new Date().toISOString()
                     });
                     console.log(`${C.brightGreen}[JOB ${jobId}] Selesai: ${isSuccess ? '✔ SUKSES' : '✘ GAGAL'}${C.reset}`);
-                }).catch(err => {
+                    
+                    await sendNotificationEmail(email, isSuccess, codeOrder, failMessage);
+                }).catch(async err => {
                     jobStore.set(jobId, { status: 'failed', success: false, email, action, message: err.message, finished_at: new Date().toISOString() });
                     console.error(`${C.red}[JOB ${jobId}] Error: ${err.message}${C.reset}`);
+                    
+                    await sendNotificationEmail(email, false, null, err.message);
                 });
 
                 return; // Sudah balas 202 di atas, jangan kirim respons lagi
