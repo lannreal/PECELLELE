@@ -365,6 +365,12 @@ let currentSession = null;
         }
       }
 
+      if (titleStr === "" && checks % 6 === 0) {
+          log.warn(`⚠️ Halaman kosong (Proxy mungkin timeout). Mereload halaman...`);
+          await page.goto(TARGET_URL, { waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => {});
+          continue;
+      }
+
       if (cfCookie || isTargetLoaded) {
         if (!cfClearanceFound) {
           if (cfCookie) {
