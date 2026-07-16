@@ -218,12 +218,10 @@ async function runSolver() {
     
     // Gunakan ScraperAPI Proxy (otomatis rotasi IP)
     const scraperApiKey = 'ffe24a20562c72ad79c68dda905812f3';
-    const oldProxyUrl = `http://scraperapi:${scraperApiKey}@proxy-server.scraperapi.com:8001`;
-    // Gunakan konfigurasi proxy-chain khusus untuk menangani HTTPS dan CORS iframe
-    newProxyUrl = await proxyChain.anonymizeProxy({ url: oldProxyUrl, port: 0 });
     
+    // Ganti proxy-server bawaan dengan proxy ScraperAPI murni
     const dynamicArgs = CHROME_ARGS.map(arg => 
-        arg.startsWith('--proxy-server=') ? `--proxy-server=${newProxyUrl}` : arg
+        arg.startsWith('--proxy-server=') ? `--proxy-server=http://proxy-server.scraperapi.com:8001` : arg
     );
 
     browser = await puppeteer.launch({
@@ -236,6 +234,12 @@ async function runSolver() {
 
     const pages = await browser.pages();
     const page = pages.length > 0 ? pages[0] : await browser.newPage();
+
+    // Autentikasi Proxy Murni Puppeteer (Tanpa Proxy Chain)
+    await page.authenticate({
+        username: 'scraperapi',
+        password: scraperApiKey
+    });
 
     // Fingerprint hardening injection
     await page.evaluateOnNewDocument(() => {
