@@ -216,13 +216,8 @@ async function runSolver() {
     const execPath = getChromeExecutablePath();
     log.info(`Menggunakan Chrome executable: ${execPath}`);
     
-    // Gunakan ScraperAPI Proxy (otomatis rotasi IP)
-    const scraperApiKey = 'ffe24a20562c72ad79c68dda905812f3';
-    
-    // Ganti proxy-server bawaan dengan proxy ScraperAPI murni
-    const dynamicArgs = CHROME_ARGS.map(arg => 
-        arg.startsWith('--proxy-server=') ? `--proxy-server=http://proxy-server.scraperapi.com:8001` : arg
-    );
+    // Gunakan IP VPS langsung (Tanpa Proxy) karena rebrowser-puppeteer sangat kuat
+    const dynamicArgs = CHROME_ARGS.filter(arg => !arg.startsWith('--proxy-server'));
 
     browser = await puppeteer.launch({
       headless: false,
@@ -234,12 +229,6 @@ async function runSolver() {
 
     const pages = await browser.pages();
     const page = pages.length > 0 ? pages[0] : await browser.newPage();
-
-    // Autentikasi Proxy Murni Puppeteer dengan keep_headers agar Cookie tidak dibuang ScraperAPI
-    await page.authenticate({
-        username: `scraperapi.keep_headers=true`,
-        password: scraperApiKey
-    });
 
     // Fingerprint hardening injection
     await page.evaluateOnNewDocument(() => {
@@ -342,7 +331,7 @@ let currentSession = null;
     await hardenFingerprint(page, fp);
     
     log.info(`Membuka Target Server Utama ...`);
-    await page.goto(TARGET_URL, { waitUntil: 'domcontentloaded', timeout: 35000 }).catch(() => {});
+    await page.goto(TARGET_URL, { waitUntil: 'domcontentloaded', timeout: 75000 }).catch(() => {});
 
     let checks = 0;
     const deadline = Date.now() + 120000;
@@ -367,7 +356,7 @@ let currentSession = null;
 
       if (titleStr === "" && checks % 6 === 0) {
           log.warn(`⚠️ Halaman kosong (Proxy mungkin timeout). Mereload halaman...`);
-          await page.goto(TARGET_URL, { waitUntil: 'domcontentloaded', timeout: 35000 }).catch(() => {});
+          await page.goto(TARGET_URL, { waitUntil: 'domcontentloaded', timeout: 75000 }).catch(() => {});
           continue;
       }
 
