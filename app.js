@@ -352,10 +352,11 @@ let currentSession = null;
       const cookies = await page.cookies('https://amprem.irfanjawa.com');
       const cfCookie = cookies.find(c => c.name === 'cf_clearance');
       let sessionCookie = cookies.find(c => c.name === 'session');
+      const titleStr = await page.title().catch(() => '');
       const challenging = await isChallenging(page);
+      const isTargetLoaded = titleStr.toLowerCase().includes('generator') && !challenging;
 
       if (checks % 4 === 1) {
-        const titleStr = await page.title().catch(() => '');
         log.info(`[CHECK #${checks}] Title: "${titleStr}" | Frames: ${page.frames().length} | CF Cookie: ${Boolean(cfCookie)}`);
         if (page.frames().length > 1) {
           const fHTML = await page.frames()[1].evaluate(() => document.body?.innerHTML?.slice(0, 400)).catch(e => e.message);
@@ -363,9 +364,13 @@ let currentSession = null;
         }
       }
 
-      if (cfCookie) {
+      if (cfCookie || isTargetLoaded) {
         if (!cfClearanceFound) {
-          log.success(`Berhasil mendapatkan cf_clearance dalam ${checks} cek!`);
+          if (cfCookie) {
+             log.success(`Berhasil mendapatkan cf_clearance dalam ${checks} cek!`);
+          } else {
+             log.success(`Halaman aman dari Cloudflare (tanpa challenge) dalam ${checks} cek!`);
+          }
           cfClearanceFound = true;
           page._cfClearanceCheck = checks;
         }
@@ -375,7 +380,7 @@ let currentSession = null;
         if (fs.existsSync(CONFIG_PATH)) {
           try { cfg = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8')); } catch (e) {}
         }
-        cfg.cf_clearance = cfCookie.value;
+        if (cfCookie) cfg.cf_clearance = cfCookie.value;
         if (sessionCookie) cfg.session = sessionCookie.value;
         fs.writeFileSync(CONFIG_PATH, JSON.stringify(cfg, null, 2), 'utf8');
 
