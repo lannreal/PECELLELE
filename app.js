@@ -709,27 +709,58 @@ const emailTransporter = nodemailer.createTransport({
 async function sendNotificationEmail(targetEmail, isSuccess, codeOrder, failMessage) {
     if (!targetEmail || targetEmail === 'test@gmail.com' || targetEmail === 'serbamurahstore123@gmail.com') return;
     try {
-        const subject = isSuccess ? '🎉 Status Klaim AM Premium: BERHASIL!' : '❌ Status Klaim AM Premium: GAGAL';
-        let htmlBody = `<div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 10px;">
-            <h2 style="color: ${isSuccess ? '#28a745' : '#dc3545'}; text-align: center;">Notifikasi Sistem AM Generator</h2>
-            <p>Halo,</p>
-            <p>Sistem kami telah selesai memproses permintaan upgrade akun Anda <strong>(${targetEmail})</strong>.</p>
-            <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
-                <h3 style="margin-top: 0; color: #555;">Detail Hasil:</h3>
-                <p><strong>Status:</strong> <span style="color: ${isSuccess ? '#28a745' : '#dc3545'}; font-weight: bold;">${isSuccess ? 'SUKSES ✅' : 'GAGAL ❌'}</span></p>
-                ${isSuccess 
-                    ? `<p><strong>Code Order VIP:</strong> <code style="background: #e9ecef; padding: 2px 6px; border-radius: 3px; font-size: 16px; color: #d63384;">${codeOrder || 'VIP-ACTIVE'}</code></p>`
-                    : `<p><strong>Alasan Gagal:</strong> ${failMessage || 'Terjadi kesalahan sistem'}</p>`}
+        const subject = isSuccess ? '🚀 [MotionHub] Berhasil Upgrade Akun Premium' : '⚠️ [MotionHub] Gagal Upgrade Akun';
+        const year = new Date().getFullYear();
+        let htmlBody = `
+<div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #121212; padding: 40px 20px; color: #e0e0e0;">
+    <div style="max-width: 600px; margin: 0 auto; background-color: #1e1e1e; border: 1px solid #333; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.5);">
+        
+        <div style="background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 100%); padding: 30px; text-align: center; border-bottom: 2px solid #415a77;">
+            <h1 style="color: #e0eaf5; margin: 0; font-size: 28px; letter-spacing: 1px;">MotionHub</h1>
+            <p style="color: #778da9; margin: 5px 0 0 0; font-size: 14px;">Premium Account System</p>
+        </div>
+        
+        <div style="padding: 30px;">
+            <p style="font-size: 16px; line-height: 1.6; color: #cccccc;">Hello,</p>
+            <p style="font-size: 16px; line-height: 1.6; color: #cccccc;">Sistem kami telah selesai memproses permintaan upgrade akun Anda untuk <strong>${targetEmail}</strong>.</p>
+            
+            <div style="background-color: #121212; border-left: 4px solid ${isSuccess ? '#4ade80' : '#f87171'}; padding: 20px; margin: 25px 0; border-radius: 4px;">
+                <h3 style="margin-top: 0; color: #ffffff; font-size: 18px; margin-bottom: 15px;">Detail Transaksi</h3>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr>
+                        <td style="padding: 8px 0; color: #888888; width: 40%;">Status</td>
+                        <td style="padding: 8px 0; color: ${isSuccess ? '#4ade80' : '#f87171'}; font-weight: bold; text-align: right;">${isSuccess ? 'SUKSES ✅' : 'GAGAL ❌'}</td>
+                    </tr>
+                    ${isSuccess 
+                        ? `<tr>
+                               <td style="padding: 8px 0; color: #888888;">Order ID</td>
+                               <td style="padding: 8px 0; text-align: right;">
+                                   <span style="background-color: #1b263b; color: #60a5fa; padding: 4px 10px; border-radius: 4px; font-family: monospace; font-size: 15px; border: 1px solid #3b82f6;">${codeOrder || 'VIP-ACTIVE'}</span>
+                               </td>
+                           </tr>`
+                        : `<tr>
+                               <td style="padding: 8px 0; color: #888888;">Reason</td>
+                               <td style="padding: 8px 0; color: #fca5a5; text-align: right; font-size: 14px;">${failMessage || 'System Error'}</td>
+                           </tr>`}
+                </table>
             </div>
-            ${isSuccess 
-                ? '<p>Selamat menikmati fitur premium! Anda bisa langsung login kembali ke aplikasi untuk mengecek status VIP.</p>'
-                : '<p>Silakan coba kembali dalam beberapa saat, atau pastikan akun belum terikat pada membership lain.</p>'}
-            <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;">
-            <p style="font-size: 12px; color: #888; text-align: center;">Pesan ini dikirim secara otomatis oleh AM Generator Bot. Harap tidak membalas email ini.</p>
-        </div>`;
+            
+            <p style="font-size: 15px; line-height: 1.6; color: #cccccc;">
+                ${isSuccess 
+                    ? 'Selamat! Akun Anda kini telah menikmati fitur premium dari MotionHub. Silakan login kembali ke dalam aplikasi untuk melihat perubahannya.' 
+                    : 'Mohon maaf, kami tidak dapat memproses upgrade akun Anda saat ini. Silakan coba kembali dalam beberapa saat, atau hubungi layanan bantuan kami.'}
+            </p>
+        </div>
+        
+        <div style="background-color: #181818; padding: 20px; text-align: center; border-top: 1px solid #333;">
+            <p style="color: #666666; font-size: 12px; margin: 0;">Pesan ini dihasilkan secara otomatis oleh sistem MotionHub.</p>
+            <p style="color: #555555; font-size: 12px; margin: 5px 0 0 0;">&copy; ${year} MotionHub. All rights reserved.</p>
+        </div>
+    </div>
+</div>`;
 
         await emailTransporter.sendMail({
-            from: '"AM Generator Bot" <' + (process.env.SMTP_USER || 'lanngood25@gmail.com') + '>',
+            from: '"MotionHub Support" <' + (process.env.SMTP_USER || 'lanngood25@gmail.com') + '>',
             to: targetEmail,
             subject: subject,
             html: htmlBody
