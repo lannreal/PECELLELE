@@ -219,9 +219,13 @@ async function runSolver() {
     // Gunakan ScraperAPI Proxy (otomatis rotasi IP)
     const scraperApiKey = 'ffe24a20562c72ad79c68dda905812f3';
     
-    // Ganti proxy-server bawaan dengan proxy ScraperAPI murni
+    const sessionId = Math.random().toString(36).substring(2, 10);
+    const proxyChainUrl = `http://scraperapi.session_number=${sessionId}:${scraperApiKey}@proxy-server.scraperapi.com:8001`;
+    newProxyUrl = await proxyChain.anonymizeProxy(proxyChainUrl);
+    log.info(`Proxy-chain aktif di: ${newProxyUrl}`);
+
     const dynamicArgs = CHROME_ARGS.map(arg => 
-        arg.startsWith('--proxy-server=') ? `--proxy-server=http://proxy-server.scraperapi.com:8001` : arg
+        arg.startsWith('--proxy-server=') ? `--proxy-server=${newProxyUrl}` : arg
     );
 
     browser = await puppeteer.launch({
@@ -234,13 +238,6 @@ async function runSolver() {
 
     const pages = await browser.pages();
     const page = pages.length > 0 ? pages[0] : await browser.newPage();
-
-    const sessionId = Math.random().toString(36).substring(2, 10);
-    // Autentikasi Proxy Murni Puppeteer (Tanpa Proxy Chain) + Sticky Session
-    await page.authenticate({
-        username: `scraperapi.session_number=${sessionId}`,
-        password: scraperApiKey
-    });
 
     // Fingerprint hardening injection
     await page.evaluateOnNewDocument(() => {
