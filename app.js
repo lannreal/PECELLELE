@@ -219,13 +219,9 @@ async function runSolver() {
     // Gunakan ScraperAPI Proxy (otomatis rotasi IP)
     const scraperApiKey = 'ffe24a20562c72ad79c68dda905812f3';
     
-    const sessionId = Math.random().toString(36).substring(2, 10);
-    const proxyChainUrl = `http://scraperapi.session_number=${sessionId}:${scraperApiKey}@proxy-server.scraperapi.com:8001`;
-    newProxyUrl = await proxyChain.anonymizeProxy(proxyChainUrl);
-    log.info(`Proxy-chain aktif di: ${newProxyUrl}`);
-
+    // Ganti proxy-server bawaan dengan proxy ScraperAPI murni
     const dynamicArgs = CHROME_ARGS.map(arg => 
-        arg.startsWith('--proxy-server=') ? `--proxy-server=${newProxyUrl}` : arg
+        arg.startsWith('--proxy-server=') ? `--proxy-server=http://proxy-server.scraperapi.com:8001` : arg
     );
 
     browser = await puppeteer.launch({
@@ -238,6 +234,12 @@ async function runSolver() {
 
     const pages = await browser.pages();
     const page = pages.length > 0 ? pages[0] : await browser.newPage();
+
+    // Autentikasi Proxy Murni Puppeteer dengan keep_headers agar Cookie tidak dibuang ScraperAPI
+    await page.authenticate({
+        username: `scraperapi.keep_headers=true`,
+        password: scraperApiKey
+    });
 
     // Fingerprint hardening injection
     await page.evaluateOnNewDocument(() => {
@@ -339,17 +341,6 @@ let currentSession = null;
     await page.setUserAgent(fp.ua);
     await hardenFingerprint(page, fp);
     
-    // Matikan load gambar, CSS, dan font agar lebih ringan dan tidak mudah timeout di proxy
-    await page.setRequestInterception(true);
-    page.on('request', (req) => {
-        const type = req.resourceType();
-        if (['image', 'stylesheet', 'font', 'media'].includes(type)) {
-            req.abort();
-        } else {
-            req.continue();
-        }
-    });
-
     log.info(`Membuka Target Server Utama ...`);
     await page.goto(TARGET_URL, { waitUntil: 'domcontentloaded', timeout: 35000 }).catch(() => {});
 
@@ -376,10 +367,6 @@ let currentSession = null;
 
       if (titleStr === "" && checks % 6 === 0) {
           log.warn(`⚠️ Halaman kosong (Proxy mungkin timeout). Mereload halaman...`);
-          // Matikan request interception sesaat jika reload gagal berkali-kali
-          if (checks > 12) {
-              await page.setRequestInterception(false).catch(()=>{});
-          }
           await page.goto(TARGET_URL, { waitUntil: 'domcontentloaded', timeout: 35000 }).catch(() => {});
           continue;
       }
