@@ -969,15 +969,17 @@ async function startQueueProcessor() {
                 }
                 
                 if (!isSuccess && attempts === 1) {
-                    console.log(`${C.yellow}[QUEUE] Attempt 1 gagal. Menunggu 90 detik sebelum retry...${C.reset}`);
-                    await new Promise(r => setTimeout(r, 90000));
+                    let retryWait = action === 'send' ? 30000 : 90000;
+                    console.log(`${C.yellow}[QUEUE] Attempt 1 gagal. Menunggu ${retryWait/1000} detik sebelum retry...${C.reset}`);
+                    await new Promise(r => setTimeout(r, retryWait));
                 }
             } catch (err) {
                 console.error(`${C.red}[QUEUE ERROR] ${err.message}${C.reset}`);
                 applyData = { error: err.message };
                 if (attempts === 1) {
-                    console.log(`${C.yellow}[QUEUE] Attempt 1 gagal karena error. Menunggu 90 detik sebelum retry...${C.reset}`);
-                    await new Promise(r => setTimeout(r, 90000));
+                    let retryWait = action === 'send' ? 30000 : 90000;
+                    console.log(`${C.yellow}[QUEUE] Attempt 1 gagal karena error. Menunggu ${retryWait/1000} detik sebelum retry...${C.reset}`);
+                    await new Promise(r => setTimeout(r, retryWait));
                 }
             }
         }
