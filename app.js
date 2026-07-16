@@ -33,6 +33,8 @@ const CHROME_ARGS = [
   '--no-sandbox',
   '--disable-setuid-sandbox',
   '--disable-dev-shm-usage',
+  '--disable-gpu',
+  '--disable-software-rasterizer',
   '--disable-blink-features=AutomationControlled',
   '--window-size=1920,1080',
   `--proxy-server=${process.env.PROXY_URL || 'http://dc.oxylabs.io:8000'}`,
