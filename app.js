@@ -940,7 +940,11 @@ async function startQueueProcessor() {
                 const execution = await executeBotAsync(action, [email, magicLink || '']);
                 executionResult = execution.result;
                 
-                if (action === 'verify_and_claim' || action === 'claim_only') {
+                if (action === 'send') {
+                    const resData = executionResult?.res?.data || executionResult?.res || executionResult;
+                    isSuccess = resData && resData.success === true;
+                    applyData = resData || {};
+                } else {
                     applyData = executionResult?.apply_res?.data || executionResult?.apply_res || {};
                     isSuccess = executionResult?.success === true || applyData.success === true || (executionResult?.apply_res?.status === 200 && !applyData.error);
                 }
@@ -973,6 +977,15 @@ async function startQueueProcessor() {
             });
             console.log(`${C.brightGreen}[JOB ${jobId}] Selesai: ${isSuccess ? '✔ SUKSES' : '✘ GAGAL'}${C.reset}`);
             await sendNotificationEmail(email, isSuccess, codeOrder, failMessage);
+        } else if (action === 'send') {
+            jobStore.set(jobId, {
+                status: isSuccess ? 'done' : 'failed',
+                success: isSuccess, action, email,
+                message: applyData.message || (isSuccess ? "Link notifikasi berhasil dikirim." : "Gagal mengirim notifikasi."),
+                data: applyData,
+                finished_at: new Date().toISOString()
+            });
+            console.log(`${C.brightGreen}[JOB ${jobId}] (Send) Selesai: ${isSuccess ? '✔ SUKSES' : '✘ GAGAL'}${C.reset}`);
         }
         
         if (jobQueue.length > 0) {
@@ -1081,35 +1094,17 @@ function startAPIServer() {
                 });
             }
 
-            // 4. POST /api/send (TIDAK MASUK ANTREAN)
-            if (pathname === '/api/send' && method === 'POST') {
-                const body = await parseJSONBody(req);
-                const email = (body.email || "").trim();
-                if (!email) return sendJSON(res, 400, { success: false, error: "Parameter 'email' wajib diset." });
-
-                console.log(`${C.brightGreen}[API] Memulai pengiriman magic link ke: ${email}${C.reset}`);
-                const execution = await executeBotAsync('send', [email]);
-                const resData = execution.result?.res?.data || execution.result?.res || execution.result;
-                const isSuccess = resData && resData.success === true;
-
-                return sendJSON(res, isSuccess ? 200 : 400, {
-                    success: isSuccess,
-                    action: "send",
-                    email: email,
-                    message: resData.message || (isSuccess ? "Link notifikasi berhasil dikirim." : "Gagal mengirim notifikasi."),
-                    data: resData
-                });
-            }
-
-            // 5 & 6. Unified Queue Handler for POST /api/verify, /api/claim (MASUK ANTREAN)
-            if ((pathname === '/api/verify' || pathname === '/api/claim') && method === 'POST') {
+            // 4, 5, 6. Unified Queue Handler for POST /api/send, /api/verify, /api/claim
+            if ((pathname === '/api/send' || pathname === '/api/verify' || pathname === '/api/claim') && method === 'POST') {
                 const body = await parseJSONBody(req);
                 const email = (body.email || body.mail || "Akun Terverifikasi").trim();
                 const magicLink = (body.magicLink || body.magic_link || body.link || body.url || "").trim();
                 
                 if (!email) return sendJSON(res, 400, { success: false, error: "Parameter 'email' wajib diset." });
 
-                let action = magicLink ? 'verify_and_claim' : 'claim_only';
+                let action = '';
+                if (pathname === '/api/send') action = 'send';
+                else action = magicLink ? 'verify_and_claim' : 'claim_only';
 
                 const jobId = `job_${Date.now()}_${Math.random().toString(36).slice(2,8)}`;
                 const position = isProcessingQueue ? jobQueue.length + 1 : 1;
@@ -1117,13 +1112,20 @@ function startAPIServer() {
                 jobQueue.push({ jobId, action, email, magicLink });
                 jobStore.set(jobId, { status: 'queued', position, email, action, started_at: new Date().toISOString() });
 
+                let responseMessage = '';
+                if (action === 'send') {
+                    responseMessage = `✅ Job diterima! Pengiriman Magic Link sedang berada di Antrean ke-${position}. Mohon tunggu sebentar.`;
+                } else {
+                    responseMessage = `✅ Job diterima! Saat ini permintaan Anda berada di Antrean ke-${position}. Silakan pantau kotak masuk (Inbox) atau folder Spam di email Anda. Kami akan otomatis mengirimkan notifikasi setelah proses akun selesai dieksekusi.`;
+                }
+
                 sendJSON(res, 202, {
                     success: true,
                     status: 'queued',
                     job_id: jobId,
                     action,
                     email,
-                    message: `✅ Job diterima! Saat ini permintaan Anda berada di Antrean ke-${position}. Silakan pantau kotak masuk (Inbox) atau folder Spam di email Anda. Kami akan otomatis mengirimkan notifikasi setelah proses akun selesai dieksekusi.`,
+                    message: responseMessage,
                     check_result_url: `/api/result/${jobId}`
                 });
 
