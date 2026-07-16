@@ -241,16 +241,7 @@ async function runSolver() {
     const pages = await browser.pages();
     const page = pages.length > 0 ? pages[0] : await browser.newPage();
 
-    // Fingerprint hardening injection
-    await page.evaluateOnNewDocument(() => {
-      try {
-        Object.defineProperty(navigator, 'webdriver', { get: () => false });
-        Object.defineProperty(navigator, 'languages', { get: () => ['en-US', 'en'] });
-      } catch (e) {}
-      delete window.cdc_adoQpoasnfa76pfcZLmcfl_Array;
-      delete window.cdc_adoQpoasnfa76pfcZLmcfl_Promise;
-      delete window.cdc_adoQpoasnfa76pfcZLmcfl_Symbol;
-    }); // RESTORED FIX
+    // Removed manual fingerprint tampering that conflicts with StealthPlugin
 let currentSession = null;
     if (fs.existsSync(CONFIG_PATH)) {
       try {
@@ -267,69 +258,9 @@ let currentSession = null;
       } catch (e) {}
     }
 
-    const CHROME_VERSIONS = [121, 122, 123, 124];
-    const FINGERPRINT_PRESETS = [
-      {
-        label             : 'linux-mesa',
-        osToken           : 'X11; Linux x86_64',
-        navigatorPlatform : 'Linux x86_64',
-        secChUaPlatform   : 'Linux',
-        webglVendor       : 'Mesa/X.org',
-        webglRenderer     : 'Mesa Intel(R) UHD Graphics 620 (KBL GT2)',
-        hwConcurrencyPool : [4, 8],
-        deviceMemoryPool  : [8, 16],
-      }
-    ];
-
-    function pickFingerprint() {
-      const randInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-      const base = FINGERPRINT_PRESETS[randInt(0, FINGERPRINT_PRESETS.length - 1)];
-      const cv   = CHROME_VERSIONS[randInt(0, CHROME_VERSIONS.length - 1)];
-      return {
-        ...base,
-        chromeVersion: cv,
-        ua           : `Mozilla/5.0 (${base.osToken}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${cv}.0.0.0 Safari/537.36`,
-        languages    : ['en-US', 'en'],
-        hwConcurrency: base.hwConcurrencyPool[randInt(0, base.hwConcurrencyPool.length - 1)],
-        deviceMemory : base.deviceMemoryPool[randInt(0, base.deviceMemoryPool.length - 1)],
-      };
-    }
-
-    async function hardenFingerprint(page, fp) {
-      await page.evaluateOnNewDocument((fp) => {
-        Object.defineProperty(navigator, 'webdriver', { get: () => false, configurable: true });
-        Object.defineProperty(navigator, 'languages', { get: () => fp.languages, configurable: true });
-        Object.defineProperty(navigator, 'platform', { get: () => fp.navigatorPlatform, configurable: true });
-        Object.defineProperty(navigator, 'hardwareConcurrency', { get: () => fp.hwConcurrency, configurable: true });
-        Object.defineProperty(navigator, 'deviceMemory', { get: () => fp.deviceMemory, configurable: true });
-        Object.defineProperty(navigator, 'maxTouchPoints', { get: () => 0, configurable: true });
-        Object.defineProperty(navigator, 'userAgent', { get: () => fp.ua, configurable: true });
-        
-        // WebGL
-        const VENDOR   = fp.webglVendor;
-        const RENDERER = fp.webglRenderer;
-        const patchWebGL = (proto) => {
-          const orig = proto.getParameter;
-          proto.getParameter = function(param) {
-            if (param === 37445) return VENDOR;
-            if (param === 37446) return RENDERER;
-            return orig.call(this, param);
-          };
-        };
-        if (typeof WebGLRenderingContext  !== 'undefined') patchWebGL(WebGLRenderingContext.prototype);
-        if (typeof WebGL2RenderingContext !== 'undefined') patchWebGL(WebGL2RenderingContext.prototype);
-
-        delete window.cdc_adoQpoasnfa76pfcZLmcfl_Array;
-        delete window.cdc_adoQpoasnfa76pfcZLmcfl_Promise;
-        delete window.cdc_adoQpoasnfa76pfcZLmcfl_Symbol;
-      }, fp);
-    }
-
     // 📌 Tentukan URL target (digunakan untuk auto-login atau refresh CF)
     const TARGET_URL = 'https://amprem.irfanjawa.com/dashboard/generator';
-    const fp = pickFingerprint();
-    await page.setUserAgent(fp.ua);
-    await hardenFingerprint(page, fp);
+    // Removed FINGERPRINT_PRESETS, pickFingerprint, and hardenFingerprint. Relying on StealthPlugin.
     
     log.info(`Membuka Target Server Utama ...`);
     await page.goto(TARGET_URL, { waitUntil: 'domcontentloaded', timeout: 75000 }).catch(() => {});
