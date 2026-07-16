@@ -35,7 +35,9 @@ const CHROME_ARGS = [
   '--disable-dev-shm-usage',
   '--disable-blink-features=AutomationControlled',
   '--window-size=1920,1080',
-  '--proxy-server=http://dc.oxylabs.io:8000'
+  '--proxy-server=http://dc.oxylabs.io:8000',
+  '--ignore-certificate-errors',
+  '--ignore-certificate-errors-spki-list'
 ];
 
 function getChromeExecutablePath() {
