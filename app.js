@@ -712,53 +712,53 @@ async function sendNotificationEmail(targetEmail, isSuccess, codeOrder, failMess
         const subject = isSuccess ? '🚀 [MotionHub] Berhasil Upgrade Akun Premium' : '⚠️ [MotionHub] Gagal Upgrade Akun';
         const year = new Date().getFullYear();
         let htmlBody = `
-<div style="background-color: #09090b; padding: 50px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #f4f4f5; line-height: 1.6;">
-    <div style="max-width: 560px; margin: 0 auto; background-color: #18181b; border: 1px solid #27272a; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.8);">
+<div style="background-color: #09090b; padding: 40px 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #f4f4f5; line-height: 1.6;">
+    <div style="max-width: 600px; margin: 0 auto; background-color: #18181b; border: 1px solid #27272a; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.8);">
         
         <!-- Header -->
-        <div style="padding: 40px 40px 20px 40px; text-align: center;">
-            <h1 style="margin: 0; font-size: 26px; font-weight: 800; letter-spacing: 2px; color: #ffffff;">
+        <div style="padding: 45px 45px 20px 45px; text-align: center;">
+            <h1 style="margin: 0; font-size: 22px; font-weight: 800; letter-spacing: 2px; color: #ffffff;">
                 MOTION<span style="color: #3b82f6;">HUB</span>
             </h1>
-            <p style="margin: 8px 0 0 0; font-size: 13px; font-weight: 500; color: #a1a1aa; text-transform: uppercase; letter-spacing: 1.5px;">
+            <p style="margin: 8px 0 0 0; font-size: 11px; font-weight: 500; color: #a1a1aa; text-transform: uppercase; letter-spacing: 1.5px;">
                 Premium Workspace
             </p>
         </div>
         
         <!-- Divider -->
-        <div style="height: 1px; background: linear-gradient(90deg, #18181b 0%, #3f3f46 50%, #18181b 100%); margin: 0 40px;"></div>
+        <div style="height: 1px; background: linear-gradient(90deg, #18181b 0%, #3f3f46 50%, #18181b 100%); margin: 0 45px;"></div>
         
         <!-- Content -->
-        <div style="padding: 35px 40px 45px 40px;">
-            <p style="font-size: 16px; color: #e4e4e7; margin-bottom: 24px;">Hi there,</p>
+        <div style="padding: 35px 45px 45px 45px;">
+            <p style="font-size: 14px; color: #e4e4e7; margin-bottom: 24px;">Hi there,</p>
             
-            <p style="font-size: 15px; color: #a1a1aa; margin-bottom: 35px;">
+            <p style="font-size: 14px; color: #a1a1aa; margin-bottom: 35px; line-height: 1.8;">
                 Permintaan upgrade akun Anda untuk <strong style="color: #ffffff;">${targetEmail}</strong> telah selesai diproses oleh sistem kami. Berikut rinciannya:
             </p>
             
             <!-- Details Box -->
-            <div style="background-color: #0f0f11; border: 1px solid #27272a; border-radius: 8px; padding: 25px; margin-bottom: 35px;">
+            <div style="background-color: #0f0f11; border: 1px solid #27272a; border-radius: 8px; padding: 20px 25px; margin-bottom: 35px;">
                 
-                <div style="margin-bottom: 20px;">
-                    <span style="font-size: 12px; color: #71717a; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 6px;">Status Transaksi</span>
-                    <span style="font-size: 16px; font-weight: 600; color: ${isSuccess ? '#34d399' : '#f87171'};">${isSuccess ? 'Verified & Active ✓' : 'Upgrade Failed ✕'}</span>
+                <div style="margin-bottom: 18px;">
+                    <span style="font-size: 11px; color: #71717a; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 6px;">Status Transaksi</span>
+                    <span style="font-size: 14px; font-weight: 600; color: ${isSuccess ? '#34d399' : '#f87171'};">${isSuccess ? 'Verified & Active ✓' : 'Upgrade Failed ✕'}</span>
                 </div>
                 
                 ${isSuccess 
                     ? `<div>
-                           <span style="font-size: 12px; color: #71717a; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 10px;">Order Reference</span>
-                           <div style="display: inline-block; background-color: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); padding: 10px 18px; border-radius: 6px; font-family: 'Courier New', Courier, monospace; font-size: 16px; font-weight: 700; color: #60a5fa; letter-spacing: 1.5px;">
+                           <span style="font-size: 11px; color: #71717a; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 8px;">Order Reference</span>
+                           <div style="display: inline-block; background-color: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); padding: 8px 14px; border-radius: 6px; font-family: 'Courier New', Courier, monospace; font-size: 14px; font-weight: 700; color: #60a5fa; letter-spacing: 1.5px;">
                                ${codeOrder || 'VIP-ACTIVE'}
                            </div>
                        </div>`
                     : `<div>
-                           <span style="font-size: 12px; color: #71717a; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 6px;">Error Details</span>
-                           <span style="font-size: 14px; color: #fca5a5;">${failMessage || 'System Encountered an Error'}</span>
+                           <span style="font-size: 11px; color: #71717a; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 6px;">Error Details</span>
+                           <span style="font-size: 13px; color: #fca5a5;">${failMessage || 'System Encountered an Error'}</span>
                        </div>`
                 }
             </div>
             
-            <p style="font-size: 15px; color: #a1a1aa; margin: 0; line-height: 1.7;">
+            <p style="font-size: 14px; color: #a1a1aa; margin: 0; line-height: 1.8;">
                 ${isSuccess 
                     ? 'Selamat! Akun Anda kini telah terhubung ke jaringan Premium kami. Silakan tutup dan buka kembali aplikasi (Restart App) untuk memuat fitur eksklusif MotionHub.' 
                     : 'Mohon maaf, sistem kami tidak dapat memproses permintaan ini. Silakan coba kembali dalam beberapa saat, atau hubungi tim bantuan.'}
@@ -766,11 +766,11 @@ async function sendNotificationEmail(targetEmail, isSuccess, codeOrder, failMess
         </div>
         
         <!-- Footer -->
-        <div style="background-color: #09090b; padding: 30px 40px; text-align: center; border-top: 1px solid #27272a;">
-            <p style="margin: 0; font-size: 12px; color: #52525b;">
+        <div style="background-color: #09090b; padding: 30px 45px; text-align: center; border-top: 1px solid #27272a;">
+            <p style="margin: 0; font-size: 11px; color: #52525b;">
                 Pesan ini dihasilkan secara otomatis oleh sistem keamanan MotionHub.<br>Mohon untuk tidak membalas email ini.
             </p>
-            <p style="margin: 12px 0 0 0; font-size: 12px; color: #3f3f46;">
+            <p style="margin: 12px 0 0 0; font-size: 11px; color: #3f3f46;">
                 &copy; ${year} MotionHub Inc. All rights reserved.
             </p>
         </div>
