@@ -1136,9 +1136,9 @@ function startAPIServer() {
                 let responseMessage = '';
                 if (action === 'send') {
                     if (position === 1) {
-                        responseMessage = `✅ Job diterima! Link verifikasi sedang dikirim. Silakan cek kotak masuk (Inbox/Spam) Gmail Anda sesaat lagi.`;
+                        responseMessage = `✅ Permintaan diproses! Bot sedang menavigasi ke sistem untuk mengirim Link Verifikasi Anda. Proses ini butuh waktu sekitar 30 - 60 detik. Silakan pantau kotak masuk (Inbox/Spam) Gmail Anda secara berkala.`;
                     } else {
-                        responseMessage = `✅ Job diterima! Pengiriman Magic Link sedang berada di Antrean ke-${position}. Mohon tunggu sebentar.`;
+                        responseMessage = `✅ Permintaan diterima! Sistem sedang memproses pengguna lain. Anda berada di Antrean ke-${position}. Estimasi waktu tunggu sekitar 1-2 menit. Mohon bersabar dan cek Gmail Anda setelahnya.`;
                     }
                 } else {
                     if (position === 1) {
