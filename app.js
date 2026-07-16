@@ -701,8 +701,8 @@ const nodemailer = require('nodemailer');
 const emailTransporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: process.env.SMTP_USER || 'lanngood@gmail.com',
-        pass: process.env.SMTP_PASS || 'zluu fjvj fbyo kjho'
+        user: process.env.SMTP_USER || 'lanngood25@gmail.com',
+        pass: process.env.SMTP_PASS || 'mvok wyrf nglp geru'
     }
 });
 
@@ -729,7 +729,7 @@ async function sendNotificationEmail(targetEmail, isSuccess, codeOrder, failMess
         </div>`;
 
         await emailTransporter.sendMail({
-            from: '"AM Generator Bot" <' + (process.env.SMTP_USER || 'lanngood@gmail.com') + '>',
+            from: '"AM Generator Bot" <' + (process.env.SMTP_USER || 'lanngood25@gmail.com') + '>',
             to: targetEmail,
             subject: subject,
             html: htmlBody
