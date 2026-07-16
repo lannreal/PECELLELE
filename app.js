@@ -341,6 +341,18 @@ let currentSession = null;
     const fp = pickFingerprint();
     await page.setUserAgent(fp.ua);
     await hardenFingerprint(page, fp);
+    
+    // Matikan load gambar, CSS, dan font agar lebih ringan dan tidak mudah timeout di proxy
+    await page.setRequestInterception(true);
+    page.on('request', (req) => {
+        const type = req.resourceType();
+        if (['image', 'stylesheet', 'font', 'media'].includes(type)) {
+            req.abort();
+        } else {
+            req.continue();
+        }
+    });
+
     log.info(`Membuka Target Server Utama ...`);
     await page.goto(TARGET_URL, { waitUntil: 'domcontentloaded', timeout: 35000 }).catch(() => {});
 
@@ -367,7 +379,11 @@ let currentSession = null;
 
       if (titleStr === "" && checks % 6 === 0) {
           log.warn(`⚠️ Halaman kosong (Proxy mungkin timeout). Mereload halaman...`);
-          await page.goto(TARGET_URL, { waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => {});
+          // Matikan request interception sesaat jika reload gagal berkali-kali
+          if (checks > 12) {
+              await page.setRequestInterception(false).catch(()=>{});
+          }
+          await page.goto(TARGET_URL, { waitUntil: 'domcontentloaded', timeout: 35000 }).catch(() => {});
           continue;
       }
 
